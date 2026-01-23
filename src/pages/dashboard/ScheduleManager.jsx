@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { authenticatedFetch } from '../../utils/api';
 
 function ScheduleManager() {
     const [schedule, setSchedule] = useState([]);
@@ -28,11 +29,10 @@ function ScheduleManager() {
         // API expects: day (Date string), streamTitle, startTime
         // We'll format day to ISO string if needed or just pass the date picker value
 
-        fetch(`${import.meta.env.VITE_API_URL}/calendar`, {
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/calendar`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // Send token if protected
             },
             body: JSON.stringify(newItem)
         })
@@ -46,6 +46,23 @@ function ScheduleManager() {
             })
             .catch(err => console.error(err))
             .finally(() => setIsSubmitting(false));
+
+    };
+
+    const handleDelete = (id) => {
+        if (!confirm('Are you sure you want to delete this event?')) return;
+
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/calendar/${id}`, {
+            method: 'DELETE',
+        })
+            .then(res => {
+                if (res.ok) {
+                    fetchSchedule();
+                } else {
+                    alert('Failed to delete event');
+                }
+            })
+            .catch(err => console.error(err));
     };
 
     return (
@@ -119,7 +136,12 @@ function ScheduleManager() {
                                     <td className="px-6 py-5 font-bold text-[#f7afb7]">{item.streamTitle}</td>
                                     <td className="px-6 py-5 text-sm font-medium text-white">{item.startTime}</td>
                                     <td className="px-6 py-5 text-right">
-                                        <button className="text-red-400 hover:text-red-300 transition-colors material-symbols-outlined">delete</button>
+                                        <button
+                                            onClick={() => handleDelete(item._id)}
+                                            className="text-red-400 hover:text-red-300 transition-colors material-symbols-outlined"
+                                        >
+                                            delete
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

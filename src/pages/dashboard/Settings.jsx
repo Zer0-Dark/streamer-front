@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { authenticatedFetch } from '../../utils/api';
 
 function Settings() {
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
+        username: '',
         name: '',
         info: '',
         password: '',
@@ -11,18 +13,14 @@ function Settings() {
     });
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        fetch(`${import.meta.env.VITE_API_URL}/users`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/users`)
             .then(res => {
                 if (!res.ok) throw new Error('Failed to fetch profile');
                 return res.json();
             })
             .then(data => {
                 setFormData({
+                    username: data.username || '',
                     name: data.name || '',
                     info: data.info || '',
                     password: '',
@@ -57,7 +55,6 @@ function Settings() {
 
     const handleSave = () => {
         setIsLoading(true);
-        const token = localStorage.getItem('token');
 
         // Filter out empty password and invalid social links
         const payload = { ...formData };
@@ -66,11 +63,10 @@ function Settings() {
         // Remove social links that don't have both platform and url
         payload.socialLinks = payload.socialLinks.filter(link => link.platform && link.url);
 
-        fetch(`${import.meta.env.VITE_API_URL}/users`, {
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/users`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
         })
@@ -148,6 +144,17 @@ function Settings() {
                         </div>
                         <div className="flex-1 space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-white ml-1">Username</label>
+                                    <input
+                                        className="w-full bg-[#2c242a]/50 border border-[#f7afb7]/10 rounded-xl p-3 text-lg font-bold text-white/50 focus:border-[#f7afb7]/30 outline-none cursor-not-allowed"
+                                        name="username"
+                                        type="text"
+                                        value={formData.username || ''}
+                                        readOnly
+                                        disabled
+                                    />
+                                </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-white ml-1">Display Name</label>
                                     <input
@@ -239,49 +246,7 @@ function Settings() {
                 </div>
             </section>
 
-            <section>
-                <div className="flex items-center gap-3 mb-6">
-                    <span className="material-symbols-outlined text-[#f7afb7]">palette</span>
-                    <h3 className="text-xl font-bold font-['Outfit'] text-white">Page Theme & Experience</h3>
-                </div>
-                <div className="bg-[#3a2f3c] p-8 rounded-[1.5rem] relative border-2 border-transparent mt-3">
-                    <div className="absolute -top-3 left-6 w-6 h-4 bg-[#3a2f3c]" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
-                    <div className="absolute -top-3 right-6 w-6 h-4 bg-[#3a2f3c]" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
 
-                    <div className="space-y-8">
-                        {/* Static Theme Controls for now */}
-                        <div className="flex items-center justify-between py-2 border-b border-white/5">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-full bg-[#2c242a] flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-[#f7afb7]">dark_mode</span>
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-white">Enable Midnight Purr Mode</h4>
-                                    <p className="text-xs text-white/70">Use high-contrast dark tones for your public page</p>
-                                </div>
-                            </div>
-                            <div className="relative inline-block w-11 h-6 transition-all duration-200 ease-in-out">
-                                <input type="checkbox" defaultChecked className="peer absolute w-0 h-0 opacity-0" />
-                                <span className="absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-[#2c242a] border border-[#f7afb7] rounded-full transition-all duration-400 peer-checked:bg-[#f7afb7]"></span>
-                                <span className="absolute content-[''] h-4 w-4 left-1 bottom-1 bg-[#f7afb7] rounded-full transition-all duration-400 peer-checked:translate-x-5 peer-checked:bg-[#2c242a]"></span>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                            <div className="space-y-4">
-                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">Interface Accents</h4>
-                                <div className="flex gap-4">
-                                    <button className="w-10 h-10 rounded-full bg-[#f7afb7] ring-4 ring-offset-4 ring-offset-[#3a2f3c] ring-[#f7afb7]"></button>
-                                    <button className="w-10 h-10 rounded-full bg-[#ad6d94]"></button>
-                                    <button className="w-10 h-10 rounded-full bg-[#8b5cf6]"></button>
-                                    <button className="w-10 h-10 rounded-full bg-[#3b82f6]"></button>
-                                    <button className="w-10 h-10 rounded-full bg-[#10b981]"></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </div>
     );
 }

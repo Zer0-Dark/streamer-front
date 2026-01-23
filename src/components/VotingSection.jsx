@@ -6,9 +6,27 @@ function PollCard({ initialPoll }) {
     const [showToast, setShowToast] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const [hasVoted, setHasVoted] = useState(false);
+    const [isEnded, setIsEnded] = useState(false);
+
     // Update local state if prop changes (optional, but good for sync)
     useEffect(() => {
         setPoll(initialPoll);
+
+        // Check if poll has ended
+        if (initialPoll && initialPoll.endDate && new Date(initialPoll.endDate) < new Date()) {
+            setIsEnded(true);
+        } else {
+            setIsEnded(false); // Reset if poll changes and is no longer ended
+        }
+
+        // Check if user has voted on this poll
+        const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '[]');
+        if (initialPoll && votedPolls.includes(getObjectId(initialPoll._id))) {
+            setHasVoted(true);
+        } else {
+            setHasVoted(false); // Reset if poll changes and user hasn't voted on new poll
+        }
     }, [initialPoll]);
 
     const getObjectId = (obj) => {
@@ -33,6 +51,14 @@ function PollCard({ initialPoll }) {
                     setShowToast(true);
                     setTimeout(() => setShowToast(false), 3000);
 
+                    // Track vote in localStorage
+                    const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '[]');
+                    if (!votedPolls.includes(pollId)) {
+                        votedPolls.push(pollId);
+                        localStorage.setItem('votedPolls', JSON.stringify(votedPolls));
+                    }
+                    setHasVoted(true);
+
                     setPoll(prev => {
                         if (!prev) return prev;
                         const newElements = prev.elements.map(el => {
@@ -47,7 +73,7 @@ function PollCard({ initialPoll }) {
 
                     setSelectedOptionId(null);
                 } else {
-                    alert("Failed to cast vote");
+                    res.json().then(data => alert("Failed to cast vote: " + (data.message || "Unknown error")));
                 }
             })
             .catch(err => console.error(err))
@@ -57,12 +83,12 @@ function PollCard({ initialPoll }) {
     const totalVotes = poll.elements.reduce((acc, el) => acc + (el.count || 0), 0);
 
     return (
-        <div className="rounded-3xl overflow-visible flex flex-col shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] bg-[var(--color-dark-purple)] border-2 border-[rgba(173,109,148,0.3)] relative">
-            <div className="relative bg-[var(--color-dusty-rose)] text-white rounded-t-[1.5rem] py-5 px-8 flex items-center justify-center gap-3">
-                <div className="absolute -top-4 left-6 w-9 h-[30px] bg-[var(--color-dusty-rose)]" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
-                <div className="absolute -top-4 right-6 w-9 h-[30px] bg-[var(--color-dusty-rose)]" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
-                <span className="material-symbols-outlined text-2xl">ballot</span>
-                <h2 className="text-2xl font-bold uppercase tracking-widest">{poll.title}</h2>
+        <div className={`rounded-3xl overflow-visible flex flex-col shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] bg-[var(--color-dark-purple)] border-2 ${isEnded ? 'border-gray-500/30' : 'border-[rgba(173,109,148,0.3)]'} relative ${isEnded ? 'opacity-80 grayscale-[0.5]' : ''}`}>
+            <div className={`relative ${isEnded ? 'bg-gray-600' : 'bg-[var(--color-dusty-rose)]'} text-white rounded-t-[1.5rem] py-5 px-8 flex items-center justify-center gap-3`}>
+                <div className={`absolute -top-4 left-6 w-9 h-[30px] ${isEnded ? 'bg-gray-600' : 'bg-[var(--color-dusty-rose)]'}`} style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
+                <div className={`absolute -top-4 right-6 w-9 h-[30px] ${isEnded ? 'bg-gray-600' : 'bg-[var(--color-dusty-rose)]'}`} style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
+                <span className="material-symbols-outlined text-2xl">{isEnded ? 'timer_off' : 'ballot'}</span>
+                <h2 className="text-2xl font-bold uppercase tracking-widest">{poll.title} {isEnded && '(ENDED)'}</h2>
             </div>
             <div className="p-10 space-y-8">
                 <div className="space-y-6">
@@ -74,8 +100,9 @@ function PollCard({ initialPoll }) {
                         return (
                             <button
                                 key={optionId}
-                                onClick={() => setSelectedOptionId(optionId)}
-                                className={`w-full group relative overflow-hidden bg-[var(--color-deep-brown-mauve)] border-2 p-6 rounded-2xl flex items-center justify-between transition-all cursor-pointer ${isSelected ? 'border-[var(--color-soft-pink)] ring-2 ring-[var(--color-soft-pink)] shadow-[0_0_15px_rgba(247,175,183,0.3)]' : 'border-[var(--color-soft-pink)]/30 hover:border-[var(--color-soft-pink)]'}`}
+                                onClick={() => !hasVoted && !isEnded && setSelectedOptionId(optionId)}
+                                disabled={hasVoted || isEnded}
+                                className={`w-full group relative overflow-hidden bg-[var(--color-deep-brown-mauve)] border-2 p-6 rounded-2xl flex items-center justify-between transition-all ${hasVoted || isEnded ? 'cursor-default' : 'cursor-pointer'} ${isSelected ? 'border-[var(--color-soft-pink)] ring-2 ring-[var(--color-soft-pink)] shadow-[0_0_15px_rgba(247,175,183,0.3)]' : 'border-[var(--color-soft-pink)]/30 hover:border-[var(--color-soft-pink)]'}`}
                             >
                                 <div className="flex items-center gap-4 relative z-10 text-left">
                                     <span className={`material-symbols-outlined ${isSelected ? 'text-[var(--color-soft-pink)] scale-110' : 'text-[var(--color-soft-pink)]/60'} transition-transform`}>
@@ -94,8 +121,8 @@ function PollCard({ initialPoll }) {
                 </div>
                 <button
                     onClick={handleCastVote}
-                    disabled={!selectedOptionId || isSubmitting}
-                    className={`w-full py-5 font-black text-2xl rounded-2xl transition-all transform shadow-xl flex items-center justify-center gap-2 ${!selectedOptionId || isSubmitting
+                    disabled={!selectedOptionId || isSubmitting || hasVoted || isEnded}
+                    className={`w-full py-5 font-black text-2xl rounded-2xl transition-all transform shadow-xl flex items-center justify-center gap-2 ${!selectedOptionId || isSubmitting || hasVoted || isEnded
                         ? 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
                         : 'bg-[var(--color-soft-pink)] text-[var(--color-deep-mauve)] hover:bg-white hover:scale-[1.02] active:scale-95 cursor-pointer'
                         }`}
@@ -105,6 +132,10 @@ function PollCard({ initialPoll }) {
                             <span className="material-symbols-outlined animate-spin">refresh</span>
                             SENDING...
                         </>
+                    ) : hasVoted ? (
+                        "VOTE SUBMITTED"
+                    ) : isEnded ? (
+                        "POLL ENDED"
                     ) : (
                         "CAST YOUR VOTE"
                     )}
@@ -130,7 +161,7 @@ function VotingSection() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/votes`)
+        fetch(`${import.meta.env.VITE_API_URL}/votes/active`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data)) {
@@ -147,11 +178,7 @@ function VotingSection() {
         </div>
     );
 
-    if (polls.length === 0) return (
-        <div className="rounded-3xl overflow-visible flex flex-col shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] bg-[var(--color-dark-purple)] border-2 border-[rgba(173,109,148,0.3)] min-h-[200px] items-center justify-center text-white">
-            <p>No active polls right now.</p>
-        </div>
-    );
+    if (polls.length === 0) return null;
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">

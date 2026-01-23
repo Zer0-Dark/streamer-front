@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import discordLogo from '../assets/discord.png';
 
 function DiscordCTA() {
     const [discordLink, setDiscordLink] = useState("#");
@@ -35,7 +36,7 @@ function DiscordCTA() {
                     Hang out with the community, get stream updates, and share your favorite cat pics!
                 </p>
                 <a className="inline-flex items-center gap-6 bg-white text-[var(--color-deep-mauve)] hover:bg-[var(--color-soft-pink)] px-12 py-6 rounded-full font-black text-3xl transition-all transform hover:scale-105 shadow-2xl group" href={discordLink} target="_blank" rel="noopener noreferrer">
-                    <img alt="Discord" className="w-10 h-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDD13dqmP5MUjY3WL-ZOp-PL4Qy-CVRxEMaFwq12xgq-nugopWuX1r6E7IXRehaxbFP_sz47ss9m8hjZOVKVVEs6oydnsfQKqpM-94N7veiEYh5T6Kj9tgVuMDB47zIbqt6K-bSGr0LnPjADMsrGge4eT9_0nJ0TEKOHtRHYY_cYRoEYgiRr8HGF-rXVe1ZEcL-DMHwDXB-9qVPuMaX0AHi0NRBZdaydFiXN6jm52nM7rldePPrY59eZGp1re6UYE4pKLXRcdOouMM" />
+                    <img alt="Discord" className="w-10 h-10" src={discordLogo} />
                     JOIN DISCORD
                     <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform">east</span>
                 </a>

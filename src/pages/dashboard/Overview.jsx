@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { authenticatedFetch } from '../../utils/api';
 
 function Overview() {
     const [polls, setPolls] = useState([]);
@@ -7,15 +8,19 @@ function Overview() {
 
     useEffect(() => {
         // Fetch Polls
-        fetch(`${import.meta.env.VITE_API_URL}/votes`)
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/votes`)
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) setPolls(data);
+                if (Array.isArray(data)) {
+                    // Only show active polls in the "Active Polls" widget
+                    const activePolls = data.filter(p => p.isActive);
+                    setPolls(activePolls);
+                }
             })
             .catch(err => console.error(err));
 
         // Fetch Schedule
-        fetch(`${import.meta.env.VITE_API_URL}/calendar`)
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/calendar`)
             .then(res => res.json())
             .then(data => setSchedule(data.slice(0, 3))) // Show top 3
             .catch(err => console.error(err));

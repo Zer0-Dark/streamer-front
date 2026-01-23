@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authenticatedFetch } from '../../utils/api';
 
 function PollManager() {
     const navigate = useNavigate();
@@ -15,7 +16,7 @@ function PollManager() {
     const [options, setOptions] = useState([{ label: '', count: 0 }, { label: '', count: 0 }]);
 
     const fetchPolls = () => {
-        fetch(`${import.meta.env.VITE_API_URL}/votes`)
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/votes`)
             .then(res => res.json())
             .then(data => setPolls(Array.isArray(data) ? data : []))
             .catch(err => console.error(err));
@@ -53,11 +54,10 @@ function PollManager() {
             return;
         }
 
-        fetch(`${import.meta.env.VITE_API_URL}/votes/create`, {
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/votes/create`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
         })
@@ -72,9 +72,9 @@ function PollManager() {
                     alert("Poll created successfully!");
                 } else {
                     if (res.status === 401) {
+                        // authenticatedFetch handles redirect, but we might want to alert if we want custom message before
+                        // but actually authenticatedFetch redirects, so this block might not even be reached or needed as much
                         alert("Session expired. Please login again.");
-                        localStorage.removeItem('token');
-                        navigate('/login');
                     } else {
                         res.json().then(d => alert('Failed to create poll: ' + (d.message || res.statusText)));
                     }
@@ -82,6 +82,39 @@ function PollManager() {
             })
             .catch(err => console.error(err))
             .finally(() => setIsCreating(false));
+
+    };
+
+    const handleArchive = (id) => {
+        if (!confirm('Are you sure you want to archive this poll?')) return;
+
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/votes/${id}/archive`, {
+            method: 'PUT'
+        })
+            .then(res => {
+                if (res.ok) {
+                    fetchPolls();
+                } else {
+                    res.json().then(d => alert('Failed to archive: ' + (d.message || res.statusText)));
+                }
+            })
+            .catch(err => console.error(err));
+    };
+
+    const handleUnarchive = (id) => {
+        if (!confirm('Are you sure you want to reactivate this poll?')) return;
+
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/votes/${id}/unarchive`, {
+            method: 'PUT'
+        })
+            .then(res => {
+                if (res.ok) {
+                    fetchPolls();
+                } else {
+                    res.json().then(d => alert('Failed to unarchive: ' + (d.message || res.statusText)));
+                }
+            })
+            .catch(err => console.error(err));
     };
 
     return (
@@ -169,6 +202,22 @@ function PollManager() {
                             <span className={`text-xs font-bold px-2 py-1 rounded bg-[#f7afb7]/20 text-[#f7afb7]`}>
                                 {poll.isActive ? 'Active' : 'Ended'}
                             </span>
+                            {poll.isActive && (
+                                <button
+                                    onClick={() => handleArchive(poll._id)}
+                                    className="text-xs cursor-pointer font-bold px-2 py-1 rounded bg-red-400/20 text-red-400 hover:bg-red-400/40 transition-colors ml-2"
+                                >
+                                    Archive
+                                </button>
+                            )}
+                            {!poll.isActive && (
+                                <button
+                                    onClick={() => handleUnarchive(poll._id)}
+                                    className="text-xs cursor-pointer font-bold px-2 py-1 rounded bg-green-400/20 text-green-400 hover:bg-green-400/40 transition-colors ml-2"
+                                >
+                                    Make Active
+                                </button>
+                            )}
                         </div>
                         <div className="space-y-2">
                             {poll.elements.map((el, i) => (
@@ -181,7 +230,7 @@ function PollManager() {
                     </div>
                 ))}
             </div>
-        </div>
+        </div >
     );
 }
 
