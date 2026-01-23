@@ -15,6 +15,8 @@ function ScheduleSection() {
         return date.toLocaleDateString('en-US', { weekday: 'long' });
     };
 
+    if (events.length === 0) return null;
+
     return (
         <div className="rounded-3xl overflow-visible flex flex-col shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] bg-[var(--color-deep-brown-mauve)] border-2 border-[rgba(173,109,148,0.2)]">
             <div className="relative bg-[var(--color-dusty-rose)] text-white rounded-t-[1.5rem] py-5 px-8 flex items-center justify-center gap-3">
@@ -24,22 +26,18 @@ function ScheduleSection() {
                 <h2 className="text-2xl font-bold uppercase tracking-widest">Stream Schedule</h2>
             </div>
             <div className="p-10 space-y-6">
-                {events.length === 0 ? (
-                    <div className="text-center text-gray-400">Loading schedule...</div>
-                ) : (
-                    events.map((event) => (
-                        <div key={event._id || event.id} className="flex items-center justify-between p-6 rounded-2xl bg-[var(--color-deep-mauve)] border-l-8 border-[var(--color-soft-pink)]">
-                            <div>
-                                <p className="text-sm uppercase font-black text-[var(--color-soft-pink)] tracking-tighter">{getDayName(event.day)}</p>
-                                <p className="text-2xl font-bold text-white">{event.streamTitle}</p>
-                            </div>
-                            <div className="text-right flex flex-col items-end">
-                                <p className="text-xl font-bold text-white">{event.startTime}</p>
-                                <span className="material-symbols-outlined text-[var(--color-soft-pink)]">schedule</span>
-                            </div>
+                {events.map((event) => (
+                    <div key={event._id || event.id} className="flex items-center justify-between p-6 rounded-2xl bg-[var(--color-deep-mauve)] border-l-8 border-[var(--color-soft-pink)]">
+                        <div>
+                            <p className="text-sm uppercase font-black text-[var(--color-soft-pink)] tracking-tighter">{getDayName(event.day)}</p>
+                            <p className="text-2xl font-bold text-white">{event.streamTitle}</p>
                         </div>
-                    ))
-                )}
+                        <div className="text-right flex flex-col items-end">
+                            <p className="text-xl font-bold text-white">{event.startTime}</p>
+                            <span className="material-symbols-outlined text-[var(--color-soft-pink)]">schedule</span>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );
