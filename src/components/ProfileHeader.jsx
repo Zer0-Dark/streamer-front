@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import leftEarImage from '../assets/leftEar.png';
+import rightEarImage from '../assets/rightEar.png';
 
 function ProfileHeader() {
     const [profile, setProfile] = useState(null);
@@ -17,16 +19,26 @@ function ProfileHeader() {
     if (!profile) return <div className="text-center py-20 text-white">Loading Profile...</div>;
 
     return (
-        <header className="flex flex-col items-center text-center space-y-8 relative w-full">
-            {/* Login Icon */}
-            <a href="/login" className="absolute top-0 left-0 p-2 text-[var(--color-soft-pink)] hover:text-white transition-colors opacity-50 hover:opacity-100" title="Login">
-                <span className="material-symbols-outlined text-3xl">login</span>
+        <header className="flex flex-col items-center text-center space-y-8  w-full">
+            {/* Login Icon - Top Right */}
+            <a href="/login" className="fixed top-6 right-6 p-3 text-[var(--color-soft-pink)] hover:text-white transition-all opacity-70 hover:opacity-100 hover:scale-110 z-50 bg-[var(--color-dark-purple)] rounded-full border-2 border-[var(--color-soft-pink)] shadow-lg" title="Login">
+                <span className="material-symbols-outlined text-3xl">pets</span>
             </a>
 
+
             <div className="relative">
-                <div className="absolute -top-6 left-8 w-12 h-12 bg-[var(--color-dusty-rose)]" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
-                <div className="absolute -top-6 right-8 w-12 h-12 bg-[var(--color-dusty-rose)]" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
-                <div className="relative w-48 h-48 rounded-full overflow-hidden border-8 border-[var(--color-dusty-rose)] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)]">
+                {/* Cat Ears */}
+                <img
+                    src={leftEarImage}
+                    alt="Left cat ear"
+                    className="absolute -top-4 -left-2 w-20 h-auto z-10 pointer-events-none rotate-3"
+                />
+                <img
+                    src={rightEarImage}
+                    alt="Right cat ear"
+                    className="absolute -top-4 -right-1 rotate-4 w-20 h-auto z-10 pointer-events-none "
+                />
+                <div className="relative w-68 h-68 rounded-full overflow-hidden border-8 border-[var(--color-dusty-rose)] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)]">
                     <img alt="Profile Avatar" className="w-full h-full object-cover" src={profile.photoUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuBGa4-6ISc04wklHrQTImhbrLJStHisCPtH1Q5p44-DrEgnd5yRdsHp4vFtD0lm_ZZq34h2CAKjOm1YMTX3z4WnGBx2LVcz8dOV7jTrsTwG2UBUMDmxrLzTmS4oSy2X3HrGJBxHl6MiSLmBDCesxVdOul9fJ5juKm2L3xvTEIDYG1ekun7nbd1EUunsMt_P4yRXNeK8MOb1ZLP1nw-LV0czArQDkKSDGiwcc3IElDE2y54xpjp2zMbT-2eaIfB0at28zEDgm37MItw"} />
                 </div>
                 <div className="absolute -bottom-2 -right-2 bg-[var(--color-soft-pink)] p-3 rounded-full shadow-xl">
@@ -42,15 +54,38 @@ function ProfileHeader() {
                 </p>
             </div>
             <div className="flex gap-8 mt-6">
-                {profile.socialLinks?.map((link, index) => (
-                    <a key={index} aria-label={link.platform} className="hover:scale-110 transition-transform p-4 rounded-2xl bg-[var(--color-dark-purple)] border-2 border-[var(--color-soft-pink)] shadow-lg" href={link.url} target="_blank" rel="noopener noreferrer">
-                        {['twitch', 'youtube', 'instagram', 'discord'].includes(link.platform.toLowerCase()) ? (
-                            <img alt={link.platform} className="w-8 h-8 filter brightness-0 invert" src={`https://cdn.simpleicons.org/${link.platform.toLowerCase()}`} />
-                        ) : (
-                            <span className="material-symbols-outlined text-white">link</span>
-                        )}
-                    </a>
-                ))}
+                {profile.socialLinks?.map((link, index) => {
+                    const platformLower = link.platform.toLowerCase();
+                    const iconMap = {
+                        'twitch': 'https://cdn.simpleicons.org/twitch/white',
+                        'youtube': 'https://cdn.simpleicons.org/youtube/white',
+                        'instagram': 'https://cdn.simpleicons.org/instagram/white',
+                        'discord': 'https://cdn.simpleicons.org/discord/white'
+                    };
+
+                    // Array of available GIFs
+                    const gifs = [
+                        '/src/assets/gifs/food.gif',
+                        '/src/assets/gifs/hurt.gif',
+                        '/src/assets/gifs/laugh.gif',
+                        '/src/assets/gifs/stream.gif'
+                    ];
+
+                    // Pick a GIF for this link (cycles through the array)
+                    const gifForLink = gifs[index % gifs.length];
+
+                    return (
+                        <div key={index} className="relative group">
+                            <a aria-label={link.platform} className="hover:scale-110 transition-transform p-4 rounded-2xl bg-[var(--color-dark-purple)] border-2 border-[var(--color-soft-pink)] shadow-lg block" href={link.url} target="_blank" rel="noopener noreferrer">
+                                {iconMap[platformLower] ? (
+                                    <img alt={link.platform} className="w-8 h-8" src={iconMap[platformLower]} />
+                                ) : (
+                                    <span className="material-symbols-outlined text-white">link</span>
+                                )}
+                            </a>
+                        </div>
+                    );
+                })}
             </div>
         </header>
     );

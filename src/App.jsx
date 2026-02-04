@@ -9,10 +9,15 @@ import PollManager from './pages/dashboard/PollManager';
 import Settings from './pages/dashboard/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 import { BrowserRouter } from 'react-router-dom'; // Re-added BrowserRouter to maintain syntactical correctness
+import CustomCursor from './components/CustomCursor';
+
 
 function App() {
   return (
     <BrowserRouter>
+      {/* Custom GIF Cursor */}
+      <CustomCursor />
+
       {/* Navbar stays here so it shows on all pages */}
       {/* <Navbar /> */}
 

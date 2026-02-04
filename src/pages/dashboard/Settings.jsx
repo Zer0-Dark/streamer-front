@@ -276,13 +276,18 @@ function Settings() {
                                 </div>
                                 <div className="grid grid-cols-3 gap-3">
                                     <div className="col-span-1">
-                                        <input
-                                            className="w-full bg-[#32272e] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-[#f7afb7] outline-none"
-                                            placeholder="Platform"
-                                            type="text"
+                                        <select
+                                            className="w-full bg-[#32272e] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-[#f7afb7] outline-none cursor-pointer"
                                             value={link.platform}
                                             onChange={(e) => handleSocialChange(idx, 'platform', e.target.value)}
-                                        />
+                                        >
+                                            <option value="" disabled>Select Platform</option>
+                                            <option value="twitch">Twitch</option>
+                                            <option value="youtube">YouTube</option>
+                                            <option value="instagram">Instagram</option>
+                                            <option value="discord">Discord</option>
+                                            <option value="other">Other</option>
+                                        </select>
                                     </div>
                                     <div className="col-span-2">
                                         <input
