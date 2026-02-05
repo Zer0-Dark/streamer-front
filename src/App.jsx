@@ -10,31 +10,47 @@ import Settings from './pages/dashboard/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 import { BrowserRouter } from 'react-router-dom'; // Re-added BrowserRouter to maintain syntactical correctness
 import CustomCursor from './components/CustomCursor';
+import LoadingScreen from './components/LoadingScreen';
+import { AnimatePresence } from 'framer-motion';
 
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+  };
+
   return (
     <BrowserRouter>
-      {/* Custom GIF Cursor */}
-      <CustomCursor />
+      <AnimatePresence mode="wait">
+        {isLoading ? (
+          <LoadingScreen key="loading" onLoadingComplete={handleLoadingComplete} />
+        ) : (
+          <>
+            {/* Custom GIF Cursor */}
+            <CustomCursor />
 
-      {/* Navbar stays here so it shows on all pages */}
-      {/* <Navbar /> */}
+            {/* Navbar stays here so it shows on all pages */}
+            {/* <Navbar /> */}
 
-      <Routes>
-        <Route path="/" element={<Home />} />
+            <Routes>
+              <Route path="/" element={<Home />} />
 
-        <Route path="/login" element={<Login />} />
+              <Route path="/login" element={<Login />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<Overview />} />
-            <Route path="schedule" element={<ScheduleManager />} />
-            <Route path="polls" element={<PollManager />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-        </Route>
-      </Routes>
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                  <Route index element={<Overview />} />
+                  <Route path="schedule" element={<ScheduleManager />} />
+                  <Route path="polls" element={<PollManager />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
+              </Route>
+            </Routes>
+          </>
+        )}
+      </AnimatePresence>
     </BrowserRouter>
   );
 }
