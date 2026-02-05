@@ -18,10 +18,10 @@ function Home({ profileData }) {
 
                 <DiscordCTA />
 
-                <div className="flex items-center gap-12 text-[var(--color-dusty-rose)] opacity-40 py-10">
-                    <span className="material-symbols-outlined text-7xl">pets</span>
-                    <span className="material-symbols-outlined text-5xl">pets</span>
-                    <span className="material-symbols-outlined text-7xl">pets</span>
+                <div className="flex items-center gap-6 sm:gap-8 md:gap-12 text-[var(--color-dusty-rose)] opacity-40 py-10">
+                    <span className="material-symbols-outlined text-4xl sm:text-5xl md:text-6xl lg:text-7xl">pets</span>
+                    <span className="material-symbols-outlined text-3xl sm:text-4xl md:text-5xl">pets</span>
+                    <span className="material-symbols-outlined text-4xl sm:text-5xl md:text-6xl lg:text-7xl">pets</span>
                 </div>
             </main>
 

@@ -49,8 +49,8 @@ function ProfileHeader({ profileData: initialProfileData }) {
                 </div>
             </div>
             <div className="space-y-4">
-                <h1 className="text-7xl font-extrabold tracking-tight text-[var(--color-soft-pink)] drop-shadow-sm" style={{ fontFamily: "'Outfit', sans-serif" }}>{profile.name || "Black Cat"}</h1>
-                <p className="text-2xl text-white font-semibold flex items-center justify-center gap-3">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-[var(--color-soft-pink)] drop-shadow-sm" style={{ fontFamily: "'Outfit', sans-serif" }}>{profile.name || "Black Cat"}</h1>
+                <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold flex items-center justify-center gap-3">
                     <span className="material-symbols-outlined text-[var(--color-dusty-rose)]">potted_plant</span>
                     {profile.info || "The coziest corner of the web"}
                     <span className="material-symbols-outlined text-[var(--color-dusty-rose)]">potted_plant</span>

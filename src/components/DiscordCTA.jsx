@@ -28,15 +28,15 @@ function DiscordCTA() {
                 <div className="absolute top-0 right-0 p-4 opacity-10">
                     <span className="material-symbols-outlined text-9xl">chat_bubble</span>
                 </div>
-                <h3 className="text-4xl font-bold text-[var(--color-soft-pink)] mb-6 flex items-center justify-center gap-4">
-                    <span className="material-symbols-outlined text-5xl">pets</span>
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[var(--color-soft-pink)] mb-4 sm:mb-6 flex items-center justify-center gap-3 sm:gap-4">
+                    <span className="material-symbols-outlined text-3xl sm:text-4xl md:text-5xl">pets</span>
                     JOIN THE LITTER
                 </h3>
-                <p className="text-xl text-white mb-10 max-w-md mx-auto">
+                <p className="text-base sm:text-lg md:text-xl text-white mb-8 sm:mb-10 max-w-md mx-auto">
                     Hang out with the community, get stream updates, and share your favorite cat pics!
                 </p>
-                <a className="inline-flex items-center gap-6 bg-white text-[var(--color-deep-mauve)] hover:bg-[var(--color-soft-pink)] px-12 py-6 rounded-full font-black text-3xl transition-all transform hover:scale-105 shadow-2xl group" href={discordLink} target="_blank" rel="noopener noreferrer">
-                    <img alt="Discord" className="w-10 h-10" src={discordLogo} />
+                <a className="inline-flex items-center gap-4 sm:gap-6 bg-white text-[var(--color-deep-mauve)] hover:bg-[var(--color-soft-pink)] px-8 sm:px-12 py-4 sm:py-6 rounded-full font-black text-xl sm:text-2xl md:text-3xl transition-all transform hover:scale-105 shadow-2xl group" href={discordLink} target="_blank" rel="noopener noreferrer">
+                    <img alt="Discord" className="w-8 h-8 sm:w-10 sm:h-10" src={discordLogo} />
                     JOIN DISCORD
                     <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform">east</span>
                 </a>
