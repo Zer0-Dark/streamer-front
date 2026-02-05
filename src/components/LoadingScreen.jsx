@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import loadingGif from '../assets/gifs/loading.gif';
 
 function LoadingScreen({ onLoadingComplete, dataReady }) {
     const [progress, setProgress] = useState(0);
@@ -39,7 +40,7 @@ function LoadingScreen({ onLoadingComplete, dataReady }) {
             {/* Loading GIF */}
             <div className="mb-8">
                 <img
-                    src="/src/assets/gifs/loading.gif"
+                    src={loadingGif}
                     alt="Loading..."
                     className="w-36 h-36 drop-shadow-2xl"
                 />
