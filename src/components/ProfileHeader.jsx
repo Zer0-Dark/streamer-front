@@ -2,19 +2,22 @@ import { useEffect, useState } from 'react';
 import leftEarImage from '../assets/leftEar.png';
 import rightEarImage from '../assets/rightEar.png';
 
-function ProfileHeader() {
-    const [profile, setProfile] = useState(null);
+function ProfileHeader({ profileData: initialProfileData }) {
+    const [profile, setProfile] = useState(initialProfileData);
 
     useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/users`)
-            .then(res => res.json())
-            .then(data => {
-                // Handle both array (take first) or single object
-                if (Array.isArray(data)) setProfile(data[0]);
-                else setProfile(data);
-            })
-            .catch(err => console.error("Failed to fetch profile:", err));
-    }, []);
+        // Only fetch if we don't have initial data
+        if (!initialProfileData) {
+            fetch(`${import.meta.env.VITE_API_URL}/users`)
+                .then(res => res.json())
+                .then(data => {
+                    // Handle both array (take first) or single object
+                    if (Array.isArray(data)) setProfile(data[0]);
+                    else setProfile(data);
+                })
+                .catch(err => console.error("Failed to fetch profile:", err));
+        }
+    }, [initialProfileData]);
 
     if (!profile) return <div className="text-center py-20 text-white">Loading Profile...</div>;
 

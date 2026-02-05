@@ -16,6 +16,22 @@ import { AnimatePresence } from 'framer-motion';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [profileData, setProfileData] = useState(null);
+
+  useEffect(() => {
+    // Prefetch profile data during loading screen
+    fetch(`${import.meta.env.VITE_API_URL}/users`)
+      .then(res => res.json())
+      .then(data => {
+        // Handle both array (take first) or single object
+        const profile = Array.isArray(data) ? data[0] : data;
+        setProfileData(profile);
+      })
+      .catch(err => {
+        console.error("Failed to fetch profile:", err);
+        // Still allow loading to complete even if fetch fails
+      });
+  }, []);
 
   const handleLoadingComplete = () => {
     setIsLoading(false);
@@ -25,7 +41,11 @@ function App() {
     <BrowserRouter>
       <AnimatePresence mode="wait">
         {isLoading ? (
-          <LoadingScreen key="loading" onLoadingComplete={handleLoadingComplete} />
+          <LoadingScreen
+            key="loading"
+            onLoadingComplete={handleLoadingComplete}
+            dataReady={!!profileData}
+          />
         ) : (
           <>
             {/* Custom GIF Cursor */}
@@ -35,7 +55,7 @@ function App() {
             {/* <Navbar /> */}
 
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Home profileData={profileData} />} />
 
               <Route path="/login" element={<Login />} />
 

@@ -4,11 +4,12 @@ import ScheduleSection from '../components/ScheduleSection';
 import DiscordCTA from '../components/DiscordCTA';
 import Footer from '../components/Footer';
 
-function Home() {
+function Home({ profileData }) {
     return (
         <div className="font-['Fredoka'] min-h-screen flex flex-col relative text-[var(--white)]">
             <main className="max-w-5xl mx-auto px-6 pt-20 pb-32 flex flex-col items-center gap-20 flex-grow w-full relative z-10">
-                <ProfileHeader />
+                <ProfileHeader profileData={profileData} />
+
 
                 <section className="flex flex-col gap-12 w-full">
                     <ScheduleSection />

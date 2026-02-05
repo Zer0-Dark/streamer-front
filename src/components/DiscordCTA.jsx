@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import discordLogo from '../assets/discord.png';
 
 function DiscordCTA() {
-    const [discordLink, setDiscordLink] = useState("#");
+    const [discordLink, setDiscordLink] = useState("https://discord.gg/Sny2vUAv");
 
     useEffect(() => {
         fetch(`${import.meta.env.VITE_API_URL}/users`)

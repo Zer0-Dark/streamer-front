@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-function LoadingScreen({ onLoadingComplete }) {
+function LoadingScreen({ onLoadingComplete, dataReady }) {
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
@@ -9,7 +9,10 @@ function LoadingScreen({ onLoadingComplete }) {
             setProgress((prev) => {
                 if (prev >= 100) {
                     clearInterval(timer);
-                    setTimeout(() => onLoadingComplete(), 500);
+                    // Only complete if data is ready
+                    if (dataReady) {
+                        setTimeout(() => onLoadingComplete(), 500);
+                    }
                     return 100;
                 }
                 return prev + 2;
@@ -17,7 +20,14 @@ function LoadingScreen({ onLoadingComplete }) {
         }, 30);
 
         return () => clearInterval(timer);
-    }, [onLoadingComplete]);
+    }, [onLoadingComplete, dataReady]);
+
+    // If progress is 100% and data becomes ready, complete loading
+    useEffect(() => {
+        if (progress === 100 && dataReady) {
+            setTimeout(() => onLoadingComplete(), 500);
+        }
+    }, [progress, dataReady, onLoadingComplete]);
 
     return (
         <motion.div
