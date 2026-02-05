@@ -11,13 +11,13 @@ function LoadingScreen({ onLoadingComplete, dataReady }) {
                     clearInterval(timer);
                     // Only complete if data is ready
                     if (dataReady) {
-                        setTimeout(() => onLoadingComplete(), 500);
+                        setTimeout(() => onLoadingComplete(), 100);
                     }
                     return 100;
                 }
-                return prev + 2;
+                return prev + 5;
             });
-        }, 30);
+        }, 20);
 
         return () => clearInterval(timer);
     }, [onLoadingComplete, dataReady]);
@@ -36,23 +36,14 @@ function LoadingScreen({ onLoadingComplete, dataReady }) {
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-gradient-to-br from-[var(--color-deep-mauve)] via-[var(--color-dark-purple)] to-[var(--color-deep-brown-mauve)]"
         >
-            {/* Animated Cat Paw */}
-            <motion.div
-                animate={{
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 5, -5, 0],
-                }}
-                transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                }}
-                className="mb-8"
-            >
-                <span className="material-symbols-outlined text-[var(--color-soft-pink)] text-9xl drop-shadow-2xl">
-                    pets
-                </span>
-            </motion.div>
+            {/* Loading GIF */}
+            <div className="mb-8">
+                <img
+                    src="/src/assets/gifs/loading.gif"
+                    alt="Loading..."
+                    className="w-36 h-36 drop-shadow-2xl"
+                />
+            </div>
 
             {/* Loading Text */}
             <motion.h2
@@ -93,9 +84,9 @@ function LoadingScreen({ onLoadingComplete, dataReady }) {
                         opacity: [0, 0.6, 0],
                     }}
                     transition={{
-                        duration: 3 + Math.random() * 2,
+                        duration: 0.8 + Math.random() * 0.7,
                         repeat: Infinity,
-                        delay: i * 0.5,
+                        delay: i * 0.1,
                     }}
                     style={{
                         left: `${20 + i * 15}%`,
