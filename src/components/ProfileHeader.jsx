@@ -63,7 +63,8 @@ function ProfileHeader({ profileData: initialProfileData }) {
                         'twitch': 'https://cdn.simpleicons.org/twitch/white',
                         'youtube': 'https://cdn.simpleicons.org/youtube/white',
                         'instagram': 'https://cdn.simpleicons.org/instagram/white',
-                        'discord': 'https://cdn.simpleicons.org/discord/white'
+                        'discord': 'https://cdn.simpleicons.org/discord/white',
+                        'tiktok': 'https://cdn.simpleicons.org/tiktok/white'
                     };
 
                     // Array of available GIFs
