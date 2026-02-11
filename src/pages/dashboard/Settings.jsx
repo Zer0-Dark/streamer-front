@@ -286,7 +286,7 @@ function Settings() {
                                             <option value="youtube">YouTube</option>
                                             <option value="instagram">Instagram</option>
                                             <option value="discord">Discord</option>
-                                            <option value="discord">tiktok</option>
+                                            <option value="tiktok">tiktok</option>
                                             <option value="other">Other</option>
                                         </select>
                                     </div>
