@@ -41,7 +41,7 @@ function ProfileHeader() {
                     <span className="material-symbols-outlined text-[var(--color-dusty-rose)]">potted_plant</span>
                 </p>
             </div>
-            <div className="flex gap-8 mt-6">
+            <div className="flex flex-wrap justify-center items-center gap-8 mt-6">
                 {profile.socialLinks?.map((link, index) => (
                     <a key={index} aria-label={link.platform} className="hover:scale-110 transition-transform p-4 rounded-2xl bg-[var(--color-dark-purple)] border-2 border-[var(--color-soft-pink)] shadow-lg" href={link.url} target="_blank" rel="noopener noreferrer">
                         {['twitch', 'youtube', 'instagram', 'discord'].includes(link.platform.toLowerCase()) ? (
