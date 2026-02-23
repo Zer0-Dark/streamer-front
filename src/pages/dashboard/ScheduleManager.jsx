@@ -10,6 +10,14 @@ function ScheduleManager() {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Edit state
+    const [editingEvent, setEditingEvent] = useState(null);
+    const [editForm, setEditForm] = useState({
+        day: '',
+        streamTitle: '',
+        startTime: ''
+    });
+
     const fetchSchedule = () => {
         fetch(`${import.meta.env.VITE_API_URL}/calendar`)
             .then(res => res.json())
@@ -63,6 +71,43 @@ function ScheduleManager() {
                 }
             })
             .catch(err => console.error(err));
+    };
+
+    const handleStartEdit = (event) => {
+        setEditingEvent(event._id);
+        setEditForm({
+            day: event.day.split('T')[0], // Extract date part from ISO string
+            streamTitle: event.streamTitle,
+            startTime: event.startTime
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingEvent(null);
+        setEditForm({ day: '', streamTitle: '', startTime: '' });
+    };
+
+    const handleUpdateEvent = (eventId) => {
+        setIsSubmitting(true);
+
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/calendar/${eventId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(editForm)
+        })
+            .then(res => {
+                if (res.ok) {
+                    setEditingEvent(null);
+                    setEditForm({ day: '', streamTitle: '', startTime: '' });
+                    fetchSchedule();
+                } else {
+                    alert('Failed to update event');
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => setIsSubmitting(false));
     };
 
     return (
@@ -131,18 +176,81 @@ function ScheduleManager() {
                         </thead>
                         <tbody className="divide-y divide-white/10">
                             {schedule.map((item) => (
-                                <tr key={item._id} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-6 py-5 text-sm font-bold text-white">{new Date(item.day).toLocaleDateString()}</td>
-                                    <td className="px-6 py-5 font-bold text-[#f7afb7]">{item.streamTitle}</td>
-                                    <td className="px-6 py-5 text-sm font-medium text-white">{item.startTime}</td>
-                                    <td className="px-6 py-5 text-right">
-                                        <button
-                                            onClick={() => handleDelete(item._id)}
-                                            className="text-red-400 hover:text-red-300 transition-colors material-symbols-outlined"
-                                        >
-                                            delete
-                                        </button>
-                                    </td>
+                                <tr key={item._id} className={`hover:bg-white/5 transition-colors ${editingEvent === item._id ? 'bg-[#f7afb7]/10' : ''}`}>
+                                    {editingEvent === item._id ? (
+                                        // Edit mode
+                                        <>
+                                            <td className="px-6 py-5">
+                                                <input
+                                                    type="date"
+                                                    className="w-full bg-[#2c242a] border border-[#f7afb7] rounded-lg p-2 text-white focus:border-[#f7afb7] outline-none text-sm"
+                                                    value={editForm.day}
+                                                    onChange={e => setEditForm({ ...editForm, day: e.target.value })}
+                                                />
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <input
+                                                    type="text"
+                                                    className="w-full bg-[#2c242a] border border-[#f7afb7] rounded-lg p-2 text-white focus:border-[#f7afb7] outline-none"
+                                                    value={editForm.streamTitle}
+                                                    onChange={e => setEditForm({ ...editForm, streamTitle: e.target.value })}
+                                                />
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <input
+                                                    type="text"
+                                                    className="w-full bg-[#2c242a] border border-[#f7afb7] rounded-lg p-2 text-white focus:border-[#f7afb7] outline-none text-sm"
+                                                    value={editForm.startTime}
+                                                    onChange={e => setEditForm({ ...editForm, startTime: e.target.value })}
+                                                />
+                                            </td>
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex gap-2 justify-end">
+                                                    <button
+                                                        onClick={() => handleUpdateEvent(item._id)}
+                                                        disabled={isSubmitting}
+                                                        className="text-green-400 hover:text-green-300 transition-colors material-symbols-outlined disabled:opacity-50"
+                                                        title="Save"
+                                                    >
+                                                        check_circle
+                                                    </button>
+                                                    <button
+                                                        onClick={handleCancelEdit}
+                                                        disabled={isSubmitting}
+                                                        className="text-gray-400 hover:text-gray-300 transition-colors material-symbols-outlined disabled:opacity-50"
+                                                        title="Cancel"
+                                                    >
+                                                        cancel
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        // View mode
+                                        <>
+                                            <td className="px-6 py-5 text-sm font-bold text-white">{new Date(item.day).toLocaleDateString()}</td>
+                                            <td className="px-6 py-5 font-bold text-[#f7afb7]">{item.streamTitle}</td>
+                                            <td className="px-6 py-5 text-sm font-medium text-white">{item.startTime}</td>
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex gap-2 justify-end">
+                                                    <button
+                                                        onClick={() => handleStartEdit(item)}
+                                                        className="text-[#f7afb7] hover:text-[#f7afb7]/80 transition-colors material-symbols-outlined"
+                                                        title="Edit"
+                                                    >
+                                                        edit
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(item._id)}
+                                                        className="text-red-400 hover:text-red-300 transition-colors material-symbols-outlined"
+                                                        title="Delete"
+                                                    >
+                                                        delete
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </>
+                                    )}
                                 </tr>
                             ))}
                             {schedule.length === 0 && (

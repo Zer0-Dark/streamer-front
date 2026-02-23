@@ -84,14 +84,14 @@ function PollCard({ initialPoll }) {
 
     return (
         <div className={`rounded-3xl overflow-visible flex flex-col shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] bg-[var(--color-dark-purple)] border-2 ${isEnded ? 'border-gray-500/30' : 'border-[rgba(173,109,148,0.3)]'} relative ${isEnded ? 'opacity-80 grayscale-[0.5]' : ''}`}>
-            <div className={`relative ${isEnded ? 'bg-gray-600' : 'bg-[var(--color-dusty-rose)]'} text-white rounded-t-[1.5rem] py-5 px-8 flex items-center justify-center gap-3`}>
+            <div className={`relative ${isEnded ? 'bg-gray-600' : 'bg-[var(--color-dusty-rose)]'} text-white rounded-t-[1.5rem] py-4 sm:py-5 px-4 sm:px-8 flex items-center justify-center gap-2 sm:gap-3`}>
                 <div className={`absolute -top-4 left-6 w-9 h-[30px] ${isEnded ? 'bg-gray-600' : 'bg-[var(--color-dusty-rose)]'}`} style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
                 <div className={`absolute -top-4 right-6 w-9 h-[30px] ${isEnded ? 'bg-gray-600' : 'bg-[var(--color-dusty-rose)]'}`} style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
-                <span className="material-symbols-outlined text-2xl">{isEnded ? 'timer_off' : 'ballot'}</span>
-                <h2 className="text-2xl font-bold uppercase tracking-widest">{poll.title} {isEnded && '(ENDED)'}</h2>
+                <span className="material-symbols-outlined text-xl sm:text-2xl">{isEnded ? 'timer_off' : 'ballot'}</span>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-widest">{poll.title} {isEnded && '(ENDED)'}</h2>
             </div>
-            <div className="p-10 space-y-8">
-                <div className="space-y-6">
+            <div className="p-4 sm:p-6 md:p-10 space-y-6 sm:space-y-8">
+                <div className="space-y-4 sm:space-y-6">
                     {poll.elements.map((option) => {
                         const percentage = totalVotes === 0 ? 0 : Math.round(((option.count || 0) / totalVotes) * 100);
                         const optionId = getObjectId(option._id) || option.label;
@@ -102,18 +102,18 @@ function PollCard({ initialPoll }) {
                                 key={optionId}
                                 onClick={() => !hasVoted && !isEnded && setSelectedOptionId(optionId)}
                                 disabled={hasVoted || isEnded}
-                                className={`w-full group relative overflow-hidden bg-[var(--color-deep-brown-mauve)] border-2 p-6 rounded-2xl flex items-center justify-between transition-all ${hasVoted || isEnded ? 'cursor-default' : 'cursor-pointer'} ${isSelected ? 'border-[var(--color-soft-pink)] ring-2 ring-[var(--color-soft-pink)] shadow-[0_0_15px_rgba(247,175,183,0.3)]' : 'border-[var(--color-soft-pink)]/30 hover:border-[var(--color-soft-pink)]'}`}
+                                className={`w-full group relative overflow-hidden bg-[var(--color-deep-brown-mauve)] border-2 p-4 sm:p-6 rounded-2xl flex items-center justify-between transition-all ${hasVoted || isEnded ? 'cursor-default' : 'cursor-pointer'} ${isSelected ? 'border-[var(--color-soft-pink)] ring-2 ring-[var(--color-soft-pink)] shadow-[0_0_15px_rgba(247,175,183,0.3)]' : 'border-[var(--color-soft-pink)]/30 hover:border-[var(--color-soft-pink)]'}`}
                             >
-                                <div className="flex items-center gap-4 relative z-10 text-left">
+                                <div className="flex items-center gap-3 sm:gap-4 relative z-10 text-left">
                                     <span className={`material-symbols-outlined ${isSelected ? 'text-[var(--color-soft-pink)] scale-110' : 'text-[var(--color-soft-pink)]/60'} transition-transform`}>
                                         {isSelected ? 'check_circle' : 'pets'}
                                     </span>
                                     <div>
-                                        <span className="font-bold text-2xl text-white block">{option.label}</span>
-                                        <span className="text-sm font-bold text-[var(--color-soft-pink)]/80">{option.count || 0} Votes</span>
+                                        <span className="font-bold text-lg sm:text-xl md:text-2xl text-white block">{option.label}</span>
+                                        <span className="text-xs sm:text-sm font-bold text-[var(--color-soft-pink)]/80">{option.count || 0} Votes</span>
                                     </div>
                                 </div>
-                                <span className="text-[var(--color-soft-pink)] font-black text-2xl relative z-10">{percentage}%</span>
+                                <span className="text-[var(--color-soft-pink)] font-black text-xl sm:text-2xl relative z-10">{percentage}%</span>
                                 <div className="absolute top-0 left-0 h-full bg-[var(--color-dusty-rose)]/40 transition-all duration-500" style={{ width: `${percentage}%` }}></div>
                             </button>
                         );
@@ -122,7 +122,7 @@ function PollCard({ initialPoll }) {
                 <button
                     onClick={handleCastVote}
                     disabled={!selectedOptionId || isSubmitting || hasVoted || isEnded}
-                    className={`w-full py-5 font-black text-2xl rounded-2xl transition-all transform shadow-xl flex items-center justify-center gap-2 ${!selectedOptionId || isSubmitting || hasVoted || isEnded
+                    className={`w-full py-4 sm:py-5 font-black text-xl sm:text-2xl rounded-2xl transition-all transform shadow-xl flex items-center justify-center gap-2 ${!selectedOptionId || isSubmitting || hasVoted || isEnded
                         ? 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50'
                         : 'bg-[var(--color-soft-pink)] text-[var(--color-deep-mauve)] hover:bg-white hover:scale-[1.02] active:scale-95 cursor-pointer'
                         }`}

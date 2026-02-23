@@ -15,6 +15,15 @@ function PollManager() {
 
     const [options, setOptions] = useState([{ label: '', count: 0 }, { label: '', count: 0 }]);
 
+    // Edit state
+    const [editingPoll, setEditingPoll] = useState(null);
+    const [editForm, setEditForm] = useState({
+        title: '',
+        startDate: '',
+        endDate: '',
+        elements: []
+    });
+
     const fetchPolls = () => {
         authenticatedFetch(`${import.meta.env.VITE_API_URL}/votes`)
             .then(res => res.json())
@@ -117,6 +126,58 @@ function PollManager() {
             .catch(err => console.error(err));
     };
 
+    const handleStartEdit = (poll) => {
+        setEditingPoll(poll._id);
+        setEditForm({
+            title: poll.title,
+            startDate: new Date(poll.startDate).toISOString().slice(0, 16),
+            endDate: new Date(poll.endDate).toISOString().slice(0, 16),
+            elements: poll.elements.map(el => ({ _id: el._id, label: el.label }))
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingPoll(null);
+        setEditForm({ title: '', startDate: '', endDate: '', elements: [] });
+    };
+
+    const handleEditOptionChange = (idx, value) => {
+        const newElements = [...editForm.elements];
+        newElements[idx].label = value;
+        setEditForm({ ...editForm, elements: newElements });
+    };
+
+    const handleUpdatePoll = (pollId) => {
+        setIsCreating(true);
+
+        const payload = {
+            title: editForm.title,
+            startDate: new Date(editForm.startDate).toISOString(),
+            endDate: new Date(editForm.endDate).toISOString(),
+            elements: editForm.elements.filter(el => el.label.trim() !== '')
+        };
+
+        authenticatedFetch(`${import.meta.env.VITE_API_URL}/votes/${pollId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (res.ok) {
+                    setEditingPoll(null);
+                    setEditForm({ title: '', startDate: '', endDate: '', elements: [] });
+                    fetchPolls();
+                    alert("Poll updated successfully!");
+                } else {
+                    res.json().then(d => alert('Failed to update poll: ' + (d.message || res.statusText)));
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => setIsCreating(false));
+    };
+
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             <h2 className="text-3xl font-['Outfit'] font-extrabold text-[#f7afb7]">Manage Polls</h2>
@@ -193,40 +254,116 @@ function PollManager() {
             <div className="space-y-6">
                 <h3 className="text-xl font-bold text-white">Poll History</h3>
                 {polls.map((poll) => (
-                    <div key={poll._id} className="bg-[#3a2f3c] p-6 rounded-2xl border-2 border-white/10">
-                        <div className="flex justify-between items-start mb-4">
-                            <div>
-                                <h4 className="text-lg font-bold text-white">{poll.title}</h4>
-                                <p className="text-xs text-[#ad6d94]">Ends: {new Date(poll.endDate).toLocaleString()}</p>
-                            </div>
-                            <span className={`text-xs font-bold px-2 py-1 rounded bg-[#f7afb7]/20 text-[#f7afb7]`}>
-                                {poll.isActive ? 'Active' : 'Ended'}
-                            </span>
-                            {poll.isActive && (
-                                <button
-                                    onClick={() => handleArchive(poll._id)}
-                                    className="text-xs cursor-pointer font-bold px-2 py-1 rounded bg-red-400/20 text-red-400 hover:bg-red-400/40 transition-colors ml-2"
-                                >
-                                    Archive
-                                </button>
-                            )}
-                            {!poll.isActive && (
-                                <button
-                                    onClick={() => handleUnarchive(poll._id)}
-                                    className="text-xs cursor-pointer font-bold px-2 py-1 rounded bg-green-400/20 text-green-400 hover:bg-green-400/40 transition-colors ml-2"
-                                >
-                                    Make Active
-                                </button>
-                            )}
-                        </div>
-                        <div className="space-y-2">
-                            {poll.elements.map((el, i) => (
-                                <div key={i} className="flex justify-between text-sm text-[#d1d1d1]">
-                                    <span>{el.label}</span>
-                                    <span className="font-bold">{el.count || 0} votes</span>
+                    <div key={poll._id} className={`bg-[#3a2f3c] p-6 rounded-2xl border-2 ${editingPoll === poll._id ? 'border-[#f7afb7]' : 'border-white/10'}`}>
+                        {editingPoll === poll._id ? (
+                            // Edit mode
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-[#ad6d94]">Poll Title</label>
+                                    <input
+                                        type="text"
+                                        className="w-full bg-[#2c242a] border border-[#f7afb7] rounded-lg p-3 text-white focus:border-[#f7afb7] outline-none"
+                                        value={editForm.title}
+                                        onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+                                    />
                                 </div>
-                            ))}
-                        </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-[#ad6d94]">Start Date</label>
+                                        <input
+                                            type="datetime-local"
+                                            className="w-full bg-[#2c242a] border border-[#f7afb7] rounded-lg p-3 text-white focus:border-[#f7afb7] outline-none calendar-icon-white"
+                                            value={editForm.startDate}
+                                            onChange={e => setEditForm({ ...editForm, startDate: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-[#ad6d94]">End Date</label>
+                                        <input
+                                            type="datetime-local"
+                                            className="w-full bg-[#2c242a] border border-[#f7afb7] rounded-lg p-3 text-white focus:border-[#f7afb7] outline-none calendar-icon-white"
+                                            value={editForm.endDate}
+                                            onChange={e => setEditForm({ ...editForm, endDate: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    <label className="text-sm font-bold text-[#ad6d94]">Options</label>
+                                    {editForm.elements.map((opt, idx) => (
+                                        <div key={idx} className="flex gap-2 items-center">
+                                            <input
+                                                type="text"
+                                                className="flex-1 bg-[#2c242a] border border-[#f7afb7] rounded-lg p-3 text-white focus:border-[#f7afb7] outline-none"
+                                                value={opt.label}
+                                                onChange={e => handleEditOptionChange(idx, e.target.value)}
+                                            />
+                                            <span className="text-xs text-gray-400 whitespace-nowrap">{poll.elements[idx]?.count || 0} votes</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        onClick={() => handleUpdatePoll(poll._id)}
+                                        disabled={isCreating}
+                                        className="flex-1 bg-[#f7afb7] text-[#2c242a] font-black uppercase py-3 rounded-xl hover:brightness-105 transition-all disabled:opacity-50"
+                                    >
+                                        {isCreating ? 'Saving...' : 'Save Changes'}
+                                    </button>
+                                    <button
+                                        onClick={handleCancelEdit}
+                                        disabled={isCreating}
+                                        className="flex-1 bg-gray-600 text-white font-black uppercase py-3 rounded-xl hover:brightness-105 transition-all disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            // View mode
+                            <>
+                                <div className="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h4 className="text-lg font-bold text-white">{poll.title}</h4>
+                                        <p className="text-xs text-[#ad6d94]">Ends: {new Date(poll.endDate).toLocaleString()}</p>
+                                    </div>
+                                    <div className="flex gap-2 items-center">
+                                        <span className={`text-xs font-bold px-2 py-1 rounded bg-[#f7afb7]/20 text-[#f7afb7]`}>
+                                            {poll.isActive ? 'Active' : 'Ended'}
+                                        </span>
+                                        <button
+                                            onClick={() => handleStartEdit(poll)}
+                                            className="text-xs cursor-pointer font-bold px-2 py-1 rounded bg-[#f7afb7]/20 text-[#f7afb7] hover:bg-[#f7afb7]/40 transition-colors"
+                                        >
+                                            Edit
+                                        </button>
+                                        {poll.isActive && (
+                                            <button
+                                                onClick={() => handleArchive(poll._id)}
+                                                className="text-xs cursor-pointer font-bold px-2 py-1 rounded bg-red-400/20 text-red-400 hover:bg-red-400/40 transition-colors"
+                                            >
+                                                Archive
+                                            </button>
+                                        )}
+                                        {!poll.isActive && (
+                                            <button
+                                                onClick={() => handleUnarchive(poll._id)}
+                                                className="text-xs cursor-pointer font-bold px-2 py-1 rounded bg-green-400/20 text-green-400 hover:bg-green-400/40 transition-colors"
+                                            >
+                                                Make Active
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    {poll.elements.map((el, i) => (
+                                        <div key={i} className="flex justify-between text-sm text-[#d1d1d1]">
+                                            <span>{el.label}</span>
+                                            <span className="font-bold">{el.count || 0} votes</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
                 ))}
             </div>

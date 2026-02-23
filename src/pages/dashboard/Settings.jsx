@@ -3,6 +3,8 @@ import { authenticatedFetch } from '../../utils/api';
 
 function Settings() {
     const [isLoading, setIsLoading] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
         name: '',
@@ -51,6 +53,54 @@ function Settings() {
     const removeSocialLink = (index) => {
         const newLinks = formData.socialLinks.filter((_, i) => i !== index);
         setFormData({ ...formData, socialLinks: newLinks });
+    };
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            // Create preview URL
+            const previewUrl = URL.createObjectURL(file);
+            setFormData({ ...formData, photoUrl: previewUrl });
+        }
+    };
+
+    const handlePhotoUpload = async () => {
+        if (!selectedFile) {
+            alert('Please select a photo first');
+            return;
+        }
+
+        const formDataToSend = new FormData();
+        formDataToSend.append('photo', selectedFile);
+
+        setUploading(true);
+
+        try {
+            const response = await authenticatedFetch(
+                `${import.meta.env.VITE_API_URL}/users/upload-photo`,
+                {
+                    method: 'POST',
+                    body: formDataToSend
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Photo uploaded successfully!');
+                // Backend now returns full URL, use it directly
+                setFormData({ ...formData, photoUrl: data.photoUrl });
+                setSelectedFile(null);
+            } else {
+                alert('Upload failed: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Upload failed');
+        } finally {
+            setUploading(false);
+        }
     };
 
     const handleSave = () => {
@@ -116,7 +166,14 @@ function Settings() {
 
                     <div className="flex flex-col md:flex-row gap-10">
                         <div className="flex flex-col items-center gap-4">
-                            <div className="relative group">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileSelect}
+                                id="photo-upload"
+                                className="hidden"
+                            />
+                            <label htmlFor="photo-upload" className="relative group cursor-pointer">
                                 <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-[#f7afb7] relative bg-[#2c242a]">
                                     {formData.photoUrl ? (
                                         <img alt="Profile" className="w-full h-full object-cover" src={formData.photoUrl} />
@@ -125,22 +182,25 @@ function Settings() {
                                             <span className="material-symbols-outlined text-4xl">pets</span>
                                         </div>
                                     )}
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                         <span className="material-symbols-outlined text-white">photo_camera</span>
                                     </div>
                                     <div className="absolute -top-2 left-4 w-6 h-4 bg-[#f7afb7]" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
                                     <div className="absolute -top-2 right-4 w-6 h-4 bg-[#f7afb7]" style={{ clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" }}></div>
                                 </div>
-                            </div>
-                            <p className="text-[10px] text-white uppercase font-black tracking-widest">Update Photo</p>
-                            <input
-                                type="text"
-                                name="photoUrl"
-                                value={formData.photoUrl}
-                                onChange={handleChange}
-                                placeholder="Photo URL"
-                                className="w-full bg-[#2c242a] border border-[#f7afb7]/20 rounded-xl px-4 py-2 text-xs text-white placeholder:text-white/40 focus:border-[#f7afb7] outline-none"
-                            />
+                            </label>
+                            <p className="text-[10px] text-white uppercase font-black tracking-widest">
+                                {selectedFile ? selectedFile.name : 'Click to Select Photo'}
+                            </p>
+                            {selectedFile && (
+                                <button
+                                    onClick={handlePhotoUpload}
+                                    disabled={uploading}
+                                    className="bg-[#f7afb7] text-[#2c242a] px-6 py-2 rounded-lg text-xs font-bold hover:brightness-105 transition-all disabled:opacity-50"
+                                >
+                                    {uploading ? 'Uploading...' : 'Upload Photo'}
+                                </button>
+                            )}
                         </div>
                         <div className="flex-1 space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -216,13 +276,19 @@ function Settings() {
                                 </div>
                                 <div className="grid grid-cols-3 gap-3">
                                     <div className="col-span-1">
-                                        <input
-                                            className="w-full bg-[#32272e] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-[#f7afb7] outline-none"
-                                            placeholder="Platform"
-                                            type="text"
+                                        <select
+                                            className="w-full bg-[#32272e] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:border-[#f7afb7] outline-none cursor-pointer"
                                             value={link.platform}
                                             onChange={(e) => handleSocialChange(idx, 'platform', e.target.value)}
-                                        />
+                                        >
+                                            <option value="" disabled>Select Platform</option>
+                                            <option value="twitch">Twitch</option>
+                                            <option value="youtube">YouTube</option>
+                                            <option value="instagram">Instagram</option>
+                                            <option value="discord">Discord</option>
+                                            <option value="tiktok">tiktok</option>
+                                            <option value="other">Other</option>
+                                        </select>
                                     </div>
                                     <div className="col-span-2">
                                         <input
